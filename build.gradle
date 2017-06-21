@@ -1,0 +1,149 @@
+def app=[
+        group: 'com.prismamp.todopago' ,
+        name: 'BVTP_CustomMicroservice' ,
+        version: '0.0.1',
+        versionType: 'SNAPSHOT'
+]
+
+configurations {
+    jaxb
+}
+
+buildscript {
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+        
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.3"
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.6'
+   }
+}
+//Default java project
+apply plugin: 'java'
+//Create .classpath, .project, etc for open project in Eclipse
+apply plugin: 'eclipse'
+//?===================
+apply plugin: 'groovy'
+apply plugin: 'idea'
+//====================
+//SpringBoot
+apply plugin: 'org.springframework.boot'
+//Java Code Coverage
+apply plugin: 'jacoco'
+//Sonar
+apply plugin:  'org.sonarqube'
+//Docker image build
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// this block indicates that the build should resolve its dependencies from the Maven Central
+// Repository, now we can add dependencies into the dependencies block
+repositories {
+
+    jcenter()
+    mavenCentral()
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+    maven { url 'https://plugins.gradle.org/m2/' }
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "https://repo.spring.io/snapshot" }
+    flatDir {
+        dirs 'lib'
+	}
+}
+
+// ==== Test
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/jacocoHtml"
+    }
+}
+
+test{
+    include '**/*Spec.*'
+    jacoco {
+        append = false
+        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+        classDumpFile = file("$buildDir/jacoco/classpathdumps")
+    }
+    finalizedBy jacocoTestReport
+
+    testLogging {
+        exceptionFormat = 'full'
+        events "PASSED", "FAILED", "SKIPPED"
+
+    }
+}
+// ==== End Test
+
+// ===== Docker
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+//Gradle Jobs
+
+task createDockerfile(type: Dockerfile) {
+    dependsOn build
+    destFile = project.file("${buildDir}/libs/Dockerfile")
+    from 'frolvlad/alpine-oraclejdk8:slim'
+    volume "/tmp"
+    maintainer 'kike "esegundorolon@prismamp.com"'
+    addFile "./${app.name}-${app.version}-${app.versionType}.jar", "/app.jar"
+    runCommand "sh -c 'touch /app.jar'"
+    environmentVariable "JAVA_OPTS", '""'
+    entryPoint "sh", "-c", "java \$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar"
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = "docker.dev.redbee.io/${app.name}:${app.version}"
+}
+
+task pushImage(type: DockerPushImage) {
+    dependsOn buildImage
+    imageName = buildImage.tag
+    tag = app.version
+}
+// ===== End Docker
+
+dependencies {
+  
+    compile 'org.springframework.boot:spring-boot-starter:1.5.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-web:1.5.2.RELEASE'
+    compile("org.springframework.ws:spring-ws-core")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile 'org.springframework.data:spring-data-jpa:1.11.3.RELEASE'
+
+
+    jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
+
+    testCompile(
+            'junit:junit:4.11',
+            'org.springframework.boot:spring-boot-starter-test:1.5.1.RELEASE',
+            'junit:junit:4.12',
+            'org.codehaus.groovy:groovy-all:2.4.4',
+            'org.spockframework:spock-core:1.0-groovy-2.4',
+            'org.spockframework:spock-spring:1.0-groovy-2.4',
+            'cglib:cglib:3.2.4'
+    )
+    
+
+}
+
+
+jar {
+    baseName = app.name
+    version =  "${app.version}-${app.versionType}"
+//    from genJaxb.classesDir
+}

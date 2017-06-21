@@ -1,2 +1,0 @@
-# BVTP_CustomMicroservice
-Gradle
