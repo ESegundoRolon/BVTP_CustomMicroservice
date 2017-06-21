@@ -2,10 +2,10 @@
 
 Microservicio encargado de manejar las transacciones para:
 
-		 * BSA
-		 * P2P
-		 * PEI
-		 * YPF
+ * BSA
+ * P2P
+ * PEI
+ * YPF
  
 Exponse servicios para los microservicios:
 
