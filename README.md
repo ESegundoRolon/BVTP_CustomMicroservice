@@ -2,10 +2,10 @@
 
 Microservicio encargado de manejar las transacciones para:
 
-Markup : * BSA
- 		 * P2P
+		 * BSA
+		 * P2P
 		 * PEI
- 		 * YPF
+		 * YPF
  
 Exponse servicios para los microservicios:
 
