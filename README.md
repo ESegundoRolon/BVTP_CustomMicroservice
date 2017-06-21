@@ -9,19 +9,19 @@ Microservicio encargado de manejar las transacciones para:
  
 Exponse servicios para los microservicios:
 
-Markup : * BVTP_BuyerPaymentMethods "/private/v1/bsa/{publicRequestKey}" Se actualiza la transacción
+ * BVTP_BuyerPaymentMethods "/private/v1/bsa/{publicRequestKey}" Se actualiza la transacción
  
 Consume servicios de los microservicios:
 
-Markup : * BSA_Proxy_TodoPago 
-		 * Users
-		 * BVTP_BuyerPaymentMethods 
+ * BSA_Proxy_TodoPago 
+ * Users
+ * BVTP_BuyerPaymentMethods 
  
 Se conecta a base NoSQL Couchbase y al ESB de PCI para el pago.
 
 #Prerequisitos
 
-Markup : * CouchBase: Bucket BVTP - Tocar el application.properties para setear ip donde corre el container de couchbase y password para los buckets. Los puertos del container deben estar mapeados: 8091-8094:8091-8094 11210:11210.
+ * CouchBase: Bucket BVTP - Tocar el application.properties para setear ip donde corre el container de couchbase y password para los buckets. Los puertos del container deben estar mapeados: 8091-8094:8091-8094 11210:11210.
 
 # BVTP_Transactions
 SAR: POST a `http://server:port/api/BSA/transaction`
