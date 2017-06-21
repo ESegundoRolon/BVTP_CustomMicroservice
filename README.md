@@ -1,4 +1,4 @@
-#Introduccion
+# Introduccion
 
 Microservicio encargado de manejar las transacciones para:
 
@@ -19,7 +19,7 @@ Consume servicios de los microservicios:
  
 Se conecta a base NoSQL Couchbase y al ESB de PCI para el pago.
 
-#Prerequisitos
+# Prerequisitos
 
  * CouchBase: Bucket BVTP - Tocar el application.properties para setear ip donde corre el container de couchbase y password para los buckets. Los puertos del container deben estar mapeados: 8091-8094:8091-8094 11210:11210.
 
